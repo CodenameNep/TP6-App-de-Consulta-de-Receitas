@@ -90,7 +90,7 @@ class _TelaReceitasState extends State<TelaReceitas> {
           const SizedBox(height: 16),
           _botao(),
           const SizedBox(height: 16),
-          _status(),
+          _conteudo(),
         ],
       ),
     );
@@ -100,7 +100,7 @@ class _TelaReceitasState extends State<TelaReceitas> {
     return TextField(
       controller: receitaController,
       decoration: const InputDecoration(
-        labelText: 'Digite o nome da receita',
+        labelText: 'Digite o nome da receita (em inglês ex:Egg, Cake etc)',
         border: OutlineInputBorder(),
       ),
     );
@@ -113,13 +113,31 @@ class _TelaReceitasState extends State<TelaReceitas> {
     );
   }
 
-  Widget _status() {
+  Widget _conteudo() {
     if (carregando) {
       return const CircularProgressIndicator();
     }
     if (mensagem.isNotEmpty) {
       return Text(mensagem);
     }
-    return Container();
+    return Expanded(
+      child: ListView.builder(
+        itemCount: receitas.length,
+        itemBuilder: (context, index) {
+          final receita = receitas[index];
+          return Card(
+            child: ListTile(
+              leading: Image.network(
+                receita['strMealThumb'] ?? '',
+                width: 50,
+                height: 50,
+                fit: BoxFit.cover,
+              ),
+              title: Text(receita['strMeal'] ?? ''),
+            ),
+          );
+        },
+      ),
+    );
   }
 }
