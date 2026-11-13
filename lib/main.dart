@@ -1,6 +1,8 @@
 // Leandro Andrade dos Santos
 
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 void main() {
   runApp(const MyApp());
@@ -27,8 +29,46 @@ class TelaReceitas extends StatefulWidget {
 
 class _TelaReceitasState extends State<TelaReceitas> {
   final TextEditingController receitaController = TextEditingController();
+  List receitas = [];
+  bool carregando = false;
+  String mensagem = '';
 
-  void _consultarReceita() {}
+  Future<void> _consultarReceita() async {
+    final termo = receitaController.text.trim();
+    if (termo.isEmpty) return;
+
+    setState(() {
+      carregando = true;
+      mensagem = '';
+      receitas = [];
+    });
+
+    final url = Uri.parse('https://www.themealdb.com/api/json/v1/1/search.php?s=$termo');
+
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final dados = jsonDecode(response.body);
+        setState(() {
+          carregando = false;
+          receitas = dados['meals'] ?? [];
+          if (receitas.isEmpty) {
+            mensagem = 'Nenhuma receita encontrada';
+          }
+        });
+      } else {
+        setState(() {
+          carregando = false;
+          mensagem = 'Erro ao consultar API';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        carregando = false;
+        mensagem = 'Erro de conexao';
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,6 +89,8 @@ class _TelaReceitasState extends State<TelaReceitas> {
           _campo(),
           const SizedBox(height: 16),
           _botao(),
+          const SizedBox(height: 16),
+          _status(),
         ],
       ),
     );
@@ -69,5 +111,15 @@ class _TelaReceitasState extends State<TelaReceitas> {
       onPressed: _consultarReceita,
       child: const Text('Consultar'),
     );
+  }
+
+  Widget _status() {
+    if (carregando) {
+      return const CircularProgressIndicator();
+    }
+    if (mensagem.isNotEmpty) {
+      return Text(mensagem);
+    }
+    return Container();
   }
 }
