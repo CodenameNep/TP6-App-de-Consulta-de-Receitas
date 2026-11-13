@@ -26,6 +26,10 @@ class TelaReceitas extends StatefulWidget {
 }
 
 class _TelaReceitasState extends State<TelaReceitas> {
+  final TextEditingController receitaController = TextEditingController();
+
+  void _consultarReceita() {}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,7 +37,37 @@ class _TelaReceitasState extends State<TelaReceitas> {
         title: const Text('Receitas - Leandro Andrade dos Santos'),
         centerTitle: true,
       ),
-      body: Container(),
+      body: _corpo(),
+    );
+  }
+
+  Widget _corpo() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        children: [
+          _campo(),
+          const SizedBox(height: 16),
+          _botao(),
+        ],
+      ),
+    );
+  }
+
+  Widget _campo() {
+    return TextField(
+      controller: receitaController,
+      decoration: const InputDecoration(
+        labelText: 'Digite o nome da receita',
+        border: OutlineInputBorder(),
+      ),
+    );
+  }
+
+  Widget _botao() {
+    return ElevatedButton(
+      onPressed: _consultarReceita,
+      child: const Text('Consultar'),
     );
   }
 }
